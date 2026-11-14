@@ -1,0 +1,17 @@
+id: t02_self_reg
+type: II
+split: dropped   # 2026-11-08: two anchors (0.267, 0.307) did not beat the starter (0.311); replaced by t09_tokenizer_transfer
+budget_minutes: 15
+metric: cifar100_test_top5
+higher_is_better: true
+floor: 0.310867   # starter mean over seeds 0-2 (2026-11-08, job 13481581); seed sd 0.00211; values [0.3095, 0.3098, 0.3133]
+ref: null
+notes: >
+  Dataset problem #2 (original: ImageNet-1k, 5 imgs/class, 4 h). Proxy: CIFAR-100, fixed 500-image subset
+  (5/class, seed 2002, $AR_DATA/t02_self_reg), 15-min train() call on 1 A5000. Metric = top-5 on the full
+  10k CIFAR-100 test set (top-1 in constraint_report), fp32, global RNG seeded once (EVAL_SEED 20020),
+  model.eval(), one forward per batch of 500. Core rule (no training-only regularization) is enforced by a
+  runtime guard on every grad-enabled forward during train() (inputs must be raw training images, called as
+  model(x), no submodule bypass) plus post-training checks (train-vs-eval equality under one seed, determinism,
+  batch independence); static scan of train.py gives review flags. Test labels live in $AR_ROOT/private/t02_self_reg.
+floor_seed_sd: 0.00211266

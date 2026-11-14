@@ -1,0 +1,9 @@
+An Anytime Predictor (CIFAR-100)
+
+Build an image classifier for CIFAR-100 (100 classes, 32x32 images) that can return progressively better predictions as additional computation becomes available. The model processes an input and emits a sequence of predictions, each one hopefully better than the last; it may emit as many intermediate predictions as it likes (up to 32), and every prediction must be a full 100-class guess.
+
+Evaluation: each test image is interrupted after a random amount of computation, drawn from a fixed distribution: the interruption budget is log-uniform between 2 million and 2 billion FLOPs per image (so every factor of 10 in that range is equally likely; the median budget is about 63 MFLOPs). The image is scored with the latest prediction that was fully completed before the interruption, counting all computation already performed for that image (including the work behind every earlier prediction). If no prediction has been completed by the interruption, the image counts as wrong. The model cannot know its eventual budget in advance: it is never told the budget, and it must compute the same sequence of predictions for every image. The objective is to maximize expected top-1 accuracy at interruption on the CIFAR-100 test set.
+
+For reference, a ResNet-18 costs about 1.1 GFLOPs per CIFAR image and a ResNet-20 about 80 MFLOPs (counting one multiply-add as 2 FLOPs). Computation is measured in FLOPs of convolutions, matrix multiplies and attention; elementwise, normalization and pooling operations are not counted, and the amount of computation must be the same for every image. Each image's predictions must depend only on that image.
+
+Training budget: 15 minutes on one NVIDIA A5000 GPU (the shortened proxy for the original 6-hour budget), using only the CIFAR-100 training set (50,000 labeled images). No pretrained weights or external data.

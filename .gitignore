@@ -1,0 +1,6 @@
+__pycache__/
+*.pyc
+.venv/
+venv/
+*.log
+# runs, data, models and caches live on /usr/xtmp/kg349/ar (see env.sh)

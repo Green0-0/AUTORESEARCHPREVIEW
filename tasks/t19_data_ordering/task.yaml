@@ -1,0 +1,14 @@
+id: t19_data_ordering
+type: I
+split: dropped   # 2026-11-08: no headroom (see IMPLEMENTATION_PLAN §3); replaced by t02_self_reg
+budget_minutes: 15
+metric: test_top1
+higher_is_better: true
+floor: 0.795333   # starter mean over seeds 0-2 (overnight 2026-11-08); seed sd 0.00127; values [0.7947, 0.7945, 0.7968]
+ref: null
+notes: >
+  Dataset problem #19. Harness owns the full training loop (ResNet-9-style, SGD nesterov, label smoothing 0.2,
+  bf16 AMP, GPU flip+crop, batch 512, fixed update count); the solution supplies only a Scheduler that returns
+  batch indices each step. Budget = whole training-process wall (scheduling included). Starter = per-epoch
+  uniform reshuffle. Test labels live in $AR_ROOT/private/t19_data_ordering.
+floor_seed_sd: 0.00127409

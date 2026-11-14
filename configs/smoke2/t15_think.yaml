@@ -1,0 +1,13 @@
+# Overnight smoke 2 (2026-11-08): thinking ON for ideation/judge with capped budgets; replica :8001. Disposable.
+run_id: smoke2_t15_think
+task_id: t15_lwf
+arm: optimized
+seed: 102
+llm:
+  base_url: "http://127.0.0.1:8001/v1"
+  model: qwen
+  max_inflight: 9
+  purposes:
+    ideation: {thinking: true, max_tokens: 8192, temperature: 0.8}
+    judge:    {thinking: true, max_tokens: 6144, temperature: 0.7}
+stop: {max_hours: 0.75, max_ideas: null}

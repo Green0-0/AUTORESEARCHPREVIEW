@@ -1,0 +1,7 @@
+Adversarial Robustness Without Adversarial Training (shortened proxy version)
+
+Use CIFAR-10. Find training procedures that maximize robust accuracy under a white-box L∞ PGD-20 attack at ε = 4/255, subject to the constraint that no adversarial examples are generated during training: no attack of any kind (FGSM, PGD, or any other procedure that optimizes input perturbations to increase the loss) may be run on the training data, and no pretrained or externally obtained models or weights may be used. Clean accuracy on the full CIFAR-10 test set must stay at or above 85%; a model below this floor scores as invalid.
+
+Evaluation: the trained model is attacked white-box with an L∞ PGD-20 attack (ε = 4/255, step size 1/255, uniform random start, fixed seed), using both a cross-entropy and a margin loss, on the first 2000 CIFAR-10 test images. A test image counts as robust only if it is classified correctly under both attacks. The metric is the fraction of these images that are robust. The model receives images in [0, 1] and must be an ordinary deterministic, differentiable classifier. Defenses that work by hiding or breaking gradients (gradient masking or obfuscation, randomized or non-differentiable preprocessing, saturated logits) do not count and will be rejected on review.
+
+Proxy budget: training must finish within 20 minutes on one NVIDIA A5000 GPU, including all data handling. Evaluation is done separately and does not count toward the budget.

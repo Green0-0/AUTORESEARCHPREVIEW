@@ -1,0 +1,13 @@
+# Overnight smoke 2 (2026-11-08): thinking OFF everywhere; replica :8000. Disposable.
+run_id: smoke2_t10_nothink
+task_id: t10_label_noise
+arm: optimized
+seed: 102
+llm:
+  base_url: "http://127.0.0.1:8000/v1"
+  model: qwen
+  max_inflight: 20
+  purposes:
+    ideation: {thinking: false, max_tokens: 4000, temperature: 0.8}
+    judge:    {thinking: false, max_tokens: 1500, temperature: 0.7}
+stop: {max_hours: 0.75, max_ideas: null}

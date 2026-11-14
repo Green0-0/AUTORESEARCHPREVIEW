@@ -1,0 +1,13 @@
+id: t18_anytime
+type: I
+split: test
+budget_minutes: 15
+metric: expected_top1_at_interruption
+higher_is_better: true
+floor: 0.443026   # starter mean over seeds 0-2 (overnight 2026-11-08); seed sd 0.00143; values [0.4447, 0.442, 0.4424]
+ref: 0.511237   # anchor_ref i000000, real-eval chain 2026-11-08, adherence 1, fidelity 1
+notes: >
+  Dataset problem #18 (original budget 6 h on 1 A5000). Interruption budget B ~ LogUniform[2e6, 2e9]
+  FLOPs/image (FlopCounterMode counts, 1 MAC = 2 FLOPs). Expectation over B computed exactly from
+  per-stage cumulative FLOPs and per-stage test top-1. Full-mode eval on CIFAR-100 test (10k).
+floor_seed_sd: 0.00143423

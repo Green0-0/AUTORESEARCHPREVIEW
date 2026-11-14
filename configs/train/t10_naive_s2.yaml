@@ -1,0 +1,20 @@
+# Train-task pipeline run (judge calibration data), started overnight 2026-11-08.
+# Thinking OFF for every call (overnight smokes: thinking truncates >78% of calls at 8k; KV thrash).
+# max_inflight 10 per run (s1 at 16 thrashed the KV cache on the optimized replica); judge 4096 / ideation 6000 tokens (s1 truncated 80% of judge calls at 1500).
+run_id: train_t10_naive_s2
+task_id: t10_label_noise
+arm: naive
+seed: 2
+llm:
+  base_url: "http://127.0.0.1:8001/v1"
+  model: qwen
+  max_inflight: 10
+  purposes:
+    ideation: {thinking: false, max_tokens: 6000, temperature: 0.8}
+    summary:  {thinking: false, max_tokens: 400,  temperature: 0.3}
+    tagging:  {thinking: false, max_tokens: 4000, temperature: 0.3}
+    assign:   {thinking: false, max_tokens: 800,  temperature: 0.2}
+    judge:    {thinking: false, max_tokens: 4096, temperature: 0.7}
+sampler: {mode: fixed_generic}
+ideation: {batch_size: 8, concurrent_batches: 2}
+stop: {max_hours: 5.0, max_ideas: null}   # extended overnight via --resume (segment 1 was 1.0 h)

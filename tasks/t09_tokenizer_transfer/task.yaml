@@ -1,0 +1,17 @@
+id: t09_tokenizer_transfer
+type: I
+split: test
+budget_minutes: 15
+metric: heldout_ppl_per_token
+higher_is_better: false
+floor: 52.522   # starter mean held-out ppl over seeds 0-2 (2026-11-08, jobs 13484217_0-2); seed sd 1.24; values [51.6162, 53.9397, 52.01]; LOWER is better
+ref: 44.7437   # anchor_ref i000000 (FVT init + embedding warmup), real-eval chain 2026-11-08, adherence 1, fidelity 1; lower is better (probe 41.31)
+notes: >
+  Dataset problem #9 (original: 4 h on 1 A5000). Proxy: GPT-2 small (harness-owned skeleton, pretrained body)
+  adapted to ONE fixed 32k byte-level BPE tokenizer trained on a fixed 200k-row Japanese Wikipedia subset
+  (20231101.ja, first 3 parquet shards, split seed 909; held-out 5k rows disjoint). adapt(model, ctx) call capped
+  at 900 s on 1 A5000. Metric = held-out per-token perplexity (LOWER is better) over 2048 fixed windows
+  (ctx 1024, last 512 scored, 1,048,576 tokens), fp32, from the saved state_dict; bits/char in constraint_report.
+  Checks: strict GPT-2-small shapes, tokenizer sha256, finiteness, determinism, static scan.
+  Held-out token windows live in $AR_ROOT/private/t09_tokenizer_transfer (npy only). Replaces t02 (no headroom).
+floor_seed_sd: 1.24352

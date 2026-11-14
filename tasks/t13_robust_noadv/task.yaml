@@ -1,0 +1,18 @@
+id: t13_robust_noadv
+type: II
+split: test
+budget_minutes: 20
+metric: pgd20_robust_acc
+higher_is_better: true
+floor: 0.000333   # starter mean over seeds 0-2 at eps 4/255 (2026-11-08); values [0.0005, 0.0, 0.0005]; 8/255 floor was 0
+ref: 0.5025   # anchor_ref i000000, real-eval chain 2026-11-08, adherence 1, fidelity 1 (clean 0.907, eps8 0.113, masking diagnostics clean)
+clean_acc_floor: 0.85        # validity gate, enforced by harness/evaluate.py (CLEAN_FLOOR), full mode only
+attack: {norm: Linf, eps: 4/255, step: 1/255, secondary_eps: 8/255, steps: 20, random_start: true, seed: 13013, losses: [ce, margin], n_images: 2000}
+notes: >
+  Dataset problem #13 (original: 3 h, clean >= 85%). Proxy: 20 min training on 1 A5000.
+  Metric = fraction of the first 2000 CIFAR-10 test images that are correctly classified at every
+  PGD iterate under both a CE-loss and a margin-loss PGD-20 attack (eps 4/255; scored eps lowered from the original 8/255 on 2026-11-08 because 8/255 compressed honest methods into 0-3%). Clean acc on the full
+  10k test set must be >= 0.85 (starter ResNet-9 reaches well above this in ~3 min, see README).
+  Adversarial training is forbidden; a static scan flags input-gradient code for review.
+  Gradient masking is the main gaming risk: check constraint_report.masking_diagnostics.flags.
+floor_seed_sd: 0.000289

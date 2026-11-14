@@ -1,0 +1,9 @@
+# Overnight live smoke test (2026-11-08): short, disposable run to validate the pipeline on real Qwen.
+run_id: smoke1_t07_optimized
+task_id: t07_activation_tuning
+arm: optimized
+seed: 101
+task_prompt_file: tasks/t07_activation_tuning/TASK.md
+llm: {base_url: "http://127.0.0.1:8000/v1", model: qwen, max_inflight: 32}
+sampler: {mode: thompson}
+stop: {max_hours: 0.75, max_ideas: null}

@@ -1,0 +1,16 @@
+id: t16_synthetic_data
+type: II
+split: test
+budget_minutes: 15          # synthesis only; fixed classifier training (~3-4 min total) is harness cost
+metric: mean_top1_3arch     # mean CIFAR-100 test top-1 (fraction) over convnet, resnet, withheld
+higher_is_better: true
+floor: 0.1695   # starter mean over seeds 0-2 (overnight 2026-11-08); seed sd 0.00207; values [0.1712, 0.1672, 0.1701]
+ref: 0.1919   # anchor_ref i000000, real-eval chain 2026-11-08, adherence 1, fidelity 1 (repaired once)
+notes: >
+  Dataset problem #16. 10 fixed real CIFAR-100 train images/class (prepare_data.py, seed 16) ->
+  <=100 synthetic images/class, hard labels, uint8 or float in [0,1]. Harness trains 3 fixed
+  classifiers (2 visible in harness/archs.py, 1 withheld in $AR_ROOT/private/t16_synthetic_data/)
+  for a fixed number of steps with fixed GPU augmentation (crop+flip), reports mean test top-1.
+  Secondary (Type II frontier): constraint_report.synthesis_wall_s, storage_bytes_npz.
+  Starter (identity + 9 crop/flip copies) is the floor candidate.
+floor_seed_sd: 0.0020664

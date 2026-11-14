@@ -1,0 +1,16 @@
+id: t10_label_noise
+type: II
+split: train
+budget_minutes: 15
+metric: clean_test_top1
+higher_is_better: true
+floor: 0.6861   # starter mean over seeds 0-2 (overnight 2026-11-08); seed sd 0.00459; values [0.6844, 0.6826, 0.6913]
+ref: 0.9054   # anchor_ref i000000, real-eval chain 2026-11-08, adherence 1, fidelity 1
+notes: >
+  CIFAR-10, 40% symmetric flip noise (exactly 20,000 of 50,000 train labels changed to a
+  uniformly random OTHER class; seed 20261110, file $AR_DATA/t10_label_noise/train_noisy.npz).
+  Metric = top-1 on the clean 10k CIFAR-10 test set, evaluated from the saved artifact in a separate
+  process. Budget = the solution's train() call (900 s, process killed at 960 s); eval limit 180 s.
+  Static scan flags pretrained-weight / download / forbidden-data code and bundled weight files;
+  training runs with HF offline vars, empty TORCH_HOME/HF_HOME caches and a dead HTTP(S) proxy.
+floor_seed_sd: 0.00459239

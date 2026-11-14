@@ -1,0 +1,20 @@
+# New train task (2026-11-09): same LLM settings as train_s3; naive = uniform prompt pool.
+# Thinking OFF for every call (overnight smokes: thinking truncates >78% of calls at 8k; KV thrash).
+# max_inflight 10 per run (s1 at 16 thrashed the KV cache on the optimized replica); judge 4096 / ideation 6000 tokens (s1 truncated 80% of judge calls at 1500).
+run_id: train_t04_naive_s1
+task_id: t04_tiny_walker
+arm: naive
+seed: 1
+llm:
+  base_url: "http://127.0.0.1:8001/v1"
+  model: qwen
+  max_inflight: 10
+  purposes:
+    ideation: {thinking: false, max_tokens: 6000, temperature: 0.8}
+    summary:  {thinking: false, max_tokens: 400,  temperature: 0.3}
+    tagging:  {thinking: false, max_tokens: 4000, temperature: 0.3}
+    assign:   {thinking: false, max_tokens: 800,  temperature: 0.2}
+    judge:    {thinking: false, max_tokens: 4096, temperature: 0.7}
+sampler: {mode: uniform}    # naive = uniform over the same prompt pool, no learning (corrected 2026-11-08)
+ideation: {batch_size: 8, concurrent_batches: 2}
+stop: {max_hours: 6.0, max_ideas: null}

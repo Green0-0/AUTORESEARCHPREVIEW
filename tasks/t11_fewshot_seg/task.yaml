@@ -1,0 +1,18 @@
+id: t11_fewshot_seg
+type: I
+split: train
+budget_minutes: 15
+metric: voc12_val_miou
+higher_is_better: true
+floor: 0.2018   # starter mean val mIoU over seeds 0-2 (2026-11-09, jobs 13486497_0-2, harness jail); seed sd 0.0003; values [0.2016, 0.2016, 0.2021]; probe 0.5237 +- 0.0024
+ref: 0.4909   # anchor_ref i000000 (DeepLabv3+ decoder, fine-tuned backbone, strong aug), real-eval chain 2026-11-09, adherence 1, fidelity 1 (probe 0.5237)
+notes: >
+  Dataset problem #11 (original: 6 h on 1 A5000, ImageNet-1k provided). Proxy: Pascal VOC 2012, 5 fully annotated
+  train images per object class (100 images, fixed seed 1111, full 21-class masks), all images resized to longer
+  side 320 and padded to 320x320 (pad label 255). ONE fixed ImageNet backbone (torchvision ResNet-50
+  IMAGENET1K_V2) handed to the solution via build_model(make_backbone); ImageNet data not provided; any
+  segmentation/detection-pretrained or other weights banned. Budget: import + build_model + train() 900 s on
+  1 A5000. Metric = mIoU over 21 classes on all 1,449 VOC12 val images at 320x320 (fp32, TF32 off, void/pad
+  ignored). Checks: backbone identity + resnet50 shapes, state_dict unchanged during train, torch.load audit,
+  finiteness, determinism, static scan, budget. Val images/masks live in $AR_ROOT/private/t11_fewshot_seg (npy only).
+floor_seed_sd: 0.00029

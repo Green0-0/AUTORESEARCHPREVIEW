@@ -1,0 +1,14 @@
+id: t07_activation_tuning
+type: I
+split: train
+budget_minutes: 15
+metric: cifar100_test_top1
+higher_is_better: true
+floor: 0.323   # starter mean over seeds 0-2 (overnight 2026-11-08); seed sd 0.00148; values [0.3213, 0.3237, 0.324]
+ref: 0.4154   # anchor_ref i000000 (BN+PReLU, AdamW one-cycle, mixup), real-eval chain 2026-11-08, adherence 1, fidelity 1
+notes: >
+  Dataset problem #7. Fixed MLP 3072-1024-1024-1024-100 (5,348,452 linear params, harness-owned);
+  solution supplies the 3 hidden activations (<= 20% of total params incl. activation params+float buffers)
+  and its training procedure; train() call capped at 900 s on 1 A5000. Harness evaluates top-1 on the
+  10k CIFAR-100 test set in fp32 from the saved state_dict, plus purity / batch-independence checks.
+floor_seed_sd: 0.00147986

@@ -1,0 +1,15 @@
+id: t15_lwf
+name: Learning Without Forgetting
+source_problem: 15
+type: I
+split: train
+budget_minutes: 15
+metric: final_top1_100way
+higher_is_better: true
+floor: 7.56333   # starter mean over seeds 0-2 (overnight 2026-11-08); seed sd 0.187; values [7.64, 7.35, 7.7]
+ref: 33.4   # anchor_ref i000000, real-eval chain 2026-11-08, adherence 1, fidelity 1
+notes: >
+  Class-incremental Split CIFAR-100, 10 tasks x 10 classes, class order fixed by prepare_data.py
+  (seed 1993; labels relabeled so task t owns labels 10t..10t+9). Harness owns the data stream and
+  the 1 MiB aux-state audit. Metric in percent (0-100). Starter = plain fine-tuning (forgetting floor).
+floor_seed_sd: 0.187172

@@ -1,0 +1,18 @@
+# Example run: naive arm (every prompt is base Generic, no appends) on train task #7.
+# Same pipeline otherwise: tagging, judging and F still run.
+run_id: t07_naive_s1
+task_id: t07_activation_tuning
+arm: naive
+seed: 1
+task_prompt_file: tasks/t07_activation_tuning/TASK.md
+references: []
+facts: []
+llm:
+  base_url: http://127.0.0.1:8001/v1
+  model: qwen
+  max_inflight: 64
+sampler: {mode: uniform, lambda0: 0.1, lambda: 0.1, sigma: 0.1, gamma: 0.99}
+scoring: {s_min: 0.05, s_base: 0.5, calibration: {a: 0.0, b: 1.0}}
+ideation: {batch_size: 8, concurrent_batches: 6}
+claims: {timeout_minutes: 30}
+stop: {max_hours: 24, max_ideas: null}

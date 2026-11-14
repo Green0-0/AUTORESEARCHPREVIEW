@@ -1,0 +1,22 @@
+id: t04_tiny_walker
+type: I
+split: train
+budget_minutes: 10
+device: cpu      # full run goes to realjudge/cpu_run.sbatch (partition compsci, -c cpus, no GPU)
+cpus: 16
+packages: "numpy, gymnasium[box2d] (BipedalWalker envs), torch (CPU only), standard library"
+metric: heldout_mean_return
+higher_is_better: true
+floor: 5.991   # starter mean held-out return over seeds 0-2 (2026-11-09, jobs 13486694_0-2, harness jail); seed sd 0.240; values [5.7867, 6.2551, 5.9312]; the starter learns to stand still
+ref: 317.64   # anchor_ref i000000 (ARS + obs normalization, small MLP), real-eval chain 2026-11-09 (CPU path), adherence 1, fidelity 1 (probe 313.75)
+notes: >
+  Dataset problem #4 (original: BipedalWalkerHardcore, < 700 params, <= 3.5 KiB, 4 h). Proxy: plain
+  gymnasium BipedalWalker-v3 (Hardcore had no headroom at a 30-min / 16-core budget: probe 5.8 +- 26 vs
+  starter 4.9 +- 0.7), CPU only, train(ctx) capped at 600 s on 16 cores. Solution supplies policy.py
+  (Policy(params).reset/act, numpy/math only; numeric literals other than 0/1/2 count as parameters) and
+  train.py returning a dict of arrays the harness saves as policy.npz (np.savez). Checks: <= 699 params,
+  npz <= 3584 bytes, dtypes, finiteness, policy.py AST rules + snapshot, determinism, static scan.
+  Metric = mean return over 100 private held-out terrain seeds in [1e9, 2^31) (training seeds must be in
+  [0, 1e9)); $AR_ROOT/private/t04_tiny_walker/eval_seeds.npy. Headroom probe (ARS V2-t, 24-16-4 MLP):
+  313.75 +- 12.40 over seeds 0-2.
+floor_seed_sd: 0.23988

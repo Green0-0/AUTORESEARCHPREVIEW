@@ -1,0 +1,94 @@
+"""Static scan of the solution for t04_tiny_walker. Heuristic: hard violations invalidate the run, review flags
+are for the reviewer. The real enforcement is structural (the harness counts parameters and bytes itself,
+evaluates in a separate process from a snapshot of policy.py, the eval seeds never enter the training process,
+and the jail has no network and a read-only filesystem). policy.py gets an extra AST check (t04lib.scan_policy).
+
+Hard: network, the private eval seeds / data tree, other pre-trained policies or weight files shipped in the
+      solution, writing outside scratch_dir.
+Review: file reads, subprocesses, dynamic code, pickle, explicit reset seeds outside ctx['train_seed_range'].
+usage: python check.py <solution_dir>   -> JSON on stdout
+"""
+import ast
+import json
+import re
+import sys
+from pathlib import Path
+
+sys.path.insert(0, str(Path(__file__).resolve().parent))
+import t04lib as L  # noqa: E402
+
+HARD = [
+    (r"\burllib\b|\brequests\b|\bhttpx\b|\baiohttp\b|\bsocket\b|http\.client|\bwget\b|\bcurl\b|ftplib|"
+     r"https?://", "network access"),
+    (r"/private\b|\bprivate/|eval_seeds|decoy_", "held-out evaluation seeds / private data"),
+    (r"\bAR_ROOT\b|\bAR_DATA\b|/usr/xtmp|/usr/project|\bxtmp\b|AUTORESEARCH",
+     "path into the data tree or repo (use only ctx['scratch_dir'])"),
+    (r"huggingface_hub|from_pretrained|torch\.hub|stable_baselines|\bsb3\b|rl_zoo|load_state_dict_from_url",
+     "pre-trained policies / model hub"),
+]
+REVIEW = [
+    (r"\bopen\(|np\.load|np\.fromfile|\bglob\b|os\.listdir|os\.walk|Path\([^)]*\)\.(read|iterdir|glob)",
+     "file access (allowed only inside ctx['scratch_dir'])"),
+    (r"\bsubprocess\b|os\.system|os\.popen|\bexec\(|\beval\(", "subprocess / dynamic code"),
+    (r"torch\.load|pickle\.load", "loading a serialized object (only allowed for files the solution wrote itself)"),
+    (r"reset\(\s*seed\s*=", "explicit env seeds: must come from ctx['train_seed_range']"),
+]
+
+
+def _doc_lines(src):
+    try:
+        tree = ast.parse(src)
+    except SyntaxError:
+        return set()
+    out = set()
+    for node in ast.walk(tree):
+        if isinstance(node, ast.Expr) and isinstance(node.value, ast.Constant) and isinstance(node.value.value, str):
+            out.update(range(node.lineno, (node.end_lineno or node.lineno) + 1))
+    return out
+
+
+def scan(root):
+    root = Path(root)
+    hard, flags, files = [], [], []
+    for need in ("train.py", "policy.py"):
+        if not (root / need).is_file():
+            hard.append({"file": need, "line": 0, "text": "", "why": f"solution/{need} missing"})
+    for f in sorted(list(root.rglob("*.py")) + list(root.rglob("*.sh"))):
+        if "__pycache__" in f.parts:
+            continue
+        rel = str(f.relative_to(root))
+        files.append(rel)
+        try:
+            src = f.read_text(errors="replace")
+        except OSError:
+            continue
+        doc = _doc_lines(src) if f.suffix == ".py" else set()
+        for n, line in enumerate(src.splitlines(), 1):
+            s = line.strip()
+            if s.startswith("#") or n in doc:
+                continue
+            code = line.split("#", 1)[0] if "#" in line and "'" not in line and '"' not in line else line
+            rec = {"file": rel, "line": n, "text": s[:200]}
+            for pat, why in HARD:
+                if re.search(pat, code):
+                    hard.append({**rec, "why": why})
+            for pat, why in REVIEW:
+                if re.search(pat, code):
+                    flags.append({**rec, "why": why})
+    other = [str(p.relative_to(root)) for p in root.rglob("*") if p.is_file()
+             and p.suffix in (".pt", ".pth", ".bin", ".safetensors", ".npy", ".npz", ".ckpt", ".onnx", ".pkl",
+                              ".pickle", ".zip", ".json", ".csv", ".txt")]
+    if other:
+        hard.append({"file": other[:5], "line": 0, "text": "",
+                     "why": "weight / data files shipped in the solution (all parameters must come from train())"})
+    pol = {}
+    if (root / "policy.py").is_file():
+        pol = L.scan_policy(root / "policy.py")
+        for e in pol["errors"]:
+            hard.append({"file": "policy.py", "line": 0, "text": e, "why": "policy.py rules"})
+    return {"files": files, "hard_violations": hard, "hard_ok": not hard, "policy_scan": pol,
+            "review_flags": flags[:60], "n_review_flags": len(flags)}
+
+
+if __name__ == "__main__":
+    print(json.dumps(scan(sys.argv[1]), indent=1))

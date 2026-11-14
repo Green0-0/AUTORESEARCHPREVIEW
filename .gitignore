@@ -4,3 +4,6 @@ __pycache__/
 venv/
 *.log
 # runs, data, models and caches live on /usr/xtmp/kg349/ar (see env.sh)
+
+# private course material: never commit
+class_notes/
